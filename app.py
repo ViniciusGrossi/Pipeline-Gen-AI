@@ -1,5 +1,7 @@
 import streamlit as st
+from contrato import Vendas
 from datetime import datetime, time
+from pydantic import ValidationError
 
 def main():
     st.title('Sistema de CRM e Vendas da Zapflow - Frontend Simples')
@@ -12,13 +14,18 @@ def main():
     produto = st.selectbox('Campo de seleção para escolher o produto vendido.',options=['ZapFlow com Gemini','ZapFlow com chatGPT','ZapFlow com Llama3.0'])
 
     if st.button('Salvar'):
-        st.write('Enviado')
-
-
-
-
-
-
+        try:  
+            data_hora = datetime.combine(data,hora)
+            venda = Vendas(
+                email = email,
+                data = data_hora,
+                valor = valor,
+                quantidade = quantidade,
+                produto = produto
+            )
+            st.write(venda)
+        except ValidationError as e:
+            st.error(f'Deu erro {e}')
 
 
 
