@@ -1,34 +1,44 @@
+# frontend.py
+
 import streamlit as st
-from contrato import Vendas
-from datetime import datetime, time
+from contrato import Vendas, ProdutoEnum
+from database import salvar_no_postgres
 from pydantic import ValidationError
+from datetime import datetime, time
 
+# Função principal para o frontend e validação
 def main():
-    st.title('Sistema de CRM e Vendas da Zapflow - Frontend Simples')
+    st.title("Sistema de CRM e Vendas da ZapFlow")
 
-    email = st.text_input('Campo de texto para inserção do email do vendedor.')
-    data = st.date_input('Data da Compra', datetime.now())
-    hora = st.time_input('Hora da Compra', value=time(9, 0))
-    valor = st.number_input('Campo numérico para inserir o valor monetário da venda realizada.', min_value=0.0, format="%.2f")
-    quantidade = st.number_input('Campo numérico para inserir a quantidade de produtos vendidos.', step=1, min_value=1)
-    produto = st.selectbox('Campo de seleção para escolher o produto vendido.',options=['ZapFlow com Gemini','ZapFlow com chatGPT','ZapFlow com Llama3.0'])
+    # Campos de entrada para os dados
+    email = st.text_input("Email do Vendedor")
+    data = st.date_input("Data da compra", datetime.now())
+    hora = st.time_input("Hora da compra", value=time(9, 0))  # Valor padrão: 09:00
+    valor = st.number_input("Valor da venda", min_value=0.0, format="%.2f")
+    quantidade = st.number_input("Quantidade de produtos", min_value=1, step=1)
+    produto = st.selectbox("Produto", options=[e.value for e in ProdutoEnum])
 
-    if st.button('Salvar'):
-        try:  
-            data_hora = datetime.combine(data,hora)
+    # Botão de submissão
+    if st.button("Salvar"):
+        try:
+            # Combinando a data e hora selecionadas para criar o datetime
+            data_hora = datetime.combine(data, hora)
+
+            # Validando os dados com Pydantic
             venda = Vendas(
-                email = email,
-                data = data_hora,
-                valor = valor,
-                quantidade = quantidade,
-                produto = produto
+                email=email,
+                data=data_hora,
+                valor=valor,
+                quantidade=quantidade,
+                produto=produto
             )
-            st.write(venda)
+            # Salvando os dados no PostgreSQL
+            salvar_no_postgres(venda)
+            st.success("Dados validados e salvos com sucesso!")
         except ValidationError as e:
-            st.error(f'Deu erro {e}')
+            st.error(f"Erro na validação dos dados: {e}")
+        except Exception as e:
+            st.error(f"Erro ao salvar os dados: {e}")
 
-
-
-
-if __name__=='__main__':
+if __name__ == "__main__":
     main()
