@@ -18,6 +18,8 @@ st.write(f"Host: {DB_HOST}, Database: {DB_NAME}, User: {DB_USER}")
 
 # Função para salvar os dados validados no PostgreSQL
 def salvar_no_postgres(dados: Vendas):
+    """ Função para salvar no postgres
+    """
     try:
         # Conectar ao banco de dados
         conn = psycopg2.connect(

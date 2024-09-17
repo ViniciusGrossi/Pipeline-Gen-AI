@@ -26,7 +26,7 @@ def main():
 
             # Validando os dados com Pydantic
             venda = Vendas(
-                email=email,
+                email=email.lower(),
                 data=data_hora,
                 valor=valor,
                 quantidade=quantidade,
